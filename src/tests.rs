@@ -149,9 +149,9 @@ fn key_gen_test(
             KeyContext::Address => 283 + HARDENED_OFFSET, // 283'
             KeyContext::Identity => HARDENED_OFFSET,      // 0'
         },
-        account + HARDENED_OFFSET, // 0'
+        account + HARDENED_OFFSET, // account'
         0,                         // 0
-        index,                     // 0
+        index,                     // index
     ];
 
     let derived_xprv = derive_path(&root_xprv, &path, DerivationScheme::Peikert);
