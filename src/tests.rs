@@ -1,3 +1,5 @@
+use crate::api::{key_gen, KeyContext};
+
 use super::*;
 
 const D1: [u8; XPRV_SIZE] = [
@@ -111,14 +113,6 @@ fn xprv_derive_peikert() {
 
 const ROOT_KEY_HEX: &str = "a8ba80028922d9fcfa055c78aede55b5c575bcd8d5a53168edf45f36d9ec8f4694592b4bc892907583e22669ecdf1b0409a9f3bd5549f2dd751b51360909cd05796b9206ec30e142e94b790a98805bf999042b55046963174ee6cee2d0375946";
 
-fn derive_path(root_xprv: &XPrv, path: &[DerivationIndex], scheme: DerivationScheme) -> XPrv {
-    let mut current_xprv = root_xprv.clone();
-    for &index in path {
-        current_xprv = current_xprv.derive(scheme, index);
-    }
-    current_xprv
-}
-
 /// Helper to convert hex string to bytes
 fn hex_to_bytes(hex: &str) -> Vec<u8> {
     (0..hex.len())
@@ -126,13 +120,6 @@ fn hex_to_bytes(hex: &str) -> Vec<u8> {
         .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
         .collect()
 }
-
-pub enum KeyContext {
-    Address,
-    Identity,
-}
-
-const HARDENED_OFFSET: u32 = 0x80_00_00_00;
 
 fn key_gen_test(
     key_context: KeyContext,
@@ -143,19 +130,14 @@ fn key_gen_test(
     let root_key_bytes = hex_to_bytes(ROOT_KEY_HEX);
     let root_xprv = XPrv::from_slice_verified(&root_key_bytes).unwrap();
 
-    let path: [DerivationIndex; 5] = [
-        44 + HARDENED_OFFSET, // 44'
-        match key_context {
-            KeyContext::Address => 283 + HARDENED_OFFSET, // 283'
-            KeyContext::Identity => HARDENED_OFFSET,      // 0'
-        },
-        account + HARDENED_OFFSET, // account'
-        0,                         // 0
-        index,                     // index
-    ];
-
-    let derived_xprv = derive_path(&root_xprv, &path, DerivationScheme::Peikert);
-    let public_key = derived_xprv.public();
+    let public_key = key_gen(
+        root_xprv,
+        key_context,
+        account,
+        index,
+        DerivationScheme::Peikert,
+    )
+    .public();
 
     let expected_public_key = hex_to_bytes(expected_public_key_hex);
 
