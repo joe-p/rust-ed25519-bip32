@@ -59,9 +59,7 @@ pub fn raw_sign(
     signature.to_bytes().to_vec()
 }
 
-// TODO: signData
-
-pub fn sign_algo_transaction(
+pub fn sign(
     root_key: &XPrv,
     context: KeyContext,
     account: DerivationIndex,
