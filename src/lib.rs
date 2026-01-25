@@ -17,6 +17,7 @@
 extern crate test;
 
 pub mod api;
+pub mod api_extern;
 mod derivation;
 mod hex;
 mod key;
