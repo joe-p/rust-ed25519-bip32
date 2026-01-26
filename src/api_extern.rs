@@ -19,6 +19,7 @@ fn xprv_from_ptr(ptr: *const u8) -> Result<XPrv, ()> {
 /// * `root_xprv` must point to a 96 byte array
 /// * `path` must point to an array of u32 of length `path_length`
 /// * `derived_xprv_out` must point to a 96 byte array
+#[no_mangle]
 pub unsafe extern "C" fn derive_path(
     root_xprv: *const u8,
     path: *const u32,
@@ -47,6 +48,7 @@ pub unsafe extern "C" fn derive_path(
 /// # Safety
 /// * `root_xprv` must point to a 96 byte array
 /// * `derived_xprv_out` must point to a 96 byte array
+#[no_mangle]
 pub unsafe extern "C" fn key_gen(
     root_xprv: *const u8,
     context: u32,
@@ -84,6 +86,7 @@ pub unsafe extern "C" fn key_gen(
 /// * `bip44_path` must point to an array of u32 of length `path_length`
 /// * `data` must point to an array of u8 of length `data_length`
 /// * `signature_out` must point to an array of u8 of sufficient length to hold the signature
+#[no_mangle]
 pub unsafe extern "C" fn raw_sign(
     root_xprv: *const u8,
     bip44_path: *const u32,
@@ -117,6 +120,7 @@ pub unsafe extern "C" fn raw_sign(
 /// * `root_xprv` must point to a 96 byte array
 /// * `data` must point to an array of u8 of length `data_length`
 /// * `signature_out` must point to an array of u8 of sufficient length to hold the signature
+#[no_mangle]
 pub unsafe extern "C" fn sign(
     root_xprv: *const u8,
     context: u32,
@@ -563,5 +567,4 @@ mod tests {
 
         assert_eq!(signature_out.to_vec(), expected);
     }
-
 }
