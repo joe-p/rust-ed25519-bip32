@@ -31,7 +31,7 @@ fn derive_path(root_xprv: &XPrv, path: &[DerivationIndex], scheme: DerivationSch
 }
 
 pub fn key_gen(
-    root_key: XPrv,
+    root_key: &XPrv,
     context: KeyContext,
     account: DerivationIndex,
     key_index: DerivationIndex,
@@ -45,7 +45,7 @@ pub fn key_gen(
         key_index,
     ];
 
-    derive_path(&root_key, &bip44_path, scheme)
+    derive_path(root_key, &bip44_path, scheme)
 }
 
 pub fn raw_sign(
@@ -107,7 +107,7 @@ mod tests {
         let root_xprv = XPrv::from_slice_verified(&root_key_bytes).unwrap();
 
         let public_key = key_gen(
-            root_xprv,
+            &root_xprv,
             key_context,
             account,
             index,
@@ -295,7 +295,7 @@ mod tests {
         }
 
         let public_key = current_xprv.public().public_key();
-        let expected_key_gen = key_gen(root_xprv, KeyContext::Address, 0, 0, DerivationScheme::V2)
+        let expected_key_gen = key_gen(&root_xprv, KeyContext::Address, 0, 0, DerivationScheme::V2)
             .public()
             .public_key();
 
@@ -319,7 +319,7 @@ mod tests {
         }
 
         let public_key = current_xprv.public().public_key();
-        let expected_key_gen = key_gen(root_xprv, KeyContext::Address, 0, 1, DerivationScheme::V2)
+        let expected_key_gen = key_gen(&root_xprv, KeyContext::Address, 0, 1, DerivationScheme::V2)
             .public()
             .public_key();
 
@@ -354,7 +354,7 @@ mod tests {
             .unwrap()
             .public_key();
 
-        let expected_key_gen = key_gen(root_xprv, KeyContext::Address, 1, 1, DerivationScheme::V2)
+        let expected_key_gen = key_gen(&root_xprv, KeyContext::Address, 1, 1, DerivationScheme::V2)
             .public()
             .public_key();
 
@@ -386,9 +386,10 @@ mod tests {
             .unwrap()
             .public_key();
 
-        let expected_key_gen = key_gen(root_xprv, KeyContext::Identity, 1, 2, DerivationScheme::V2)
-            .public()
-            .public_key();
+        let expected_key_gen =
+            key_gen(&root_xprv, KeyContext::Identity, 1, 2, DerivationScheme::V2)
+                .public()
+                .public_key();
 
         assert_eq!(
             derived_pub, expected_key_gen,
@@ -405,7 +406,7 @@ mod tests {
         let message = b"Hello, World!";
 
         let xprv = key_gen(
-            root_xprv,
+            &root_xprv,
             KeyContext::Address,
             0,
             0,
@@ -434,13 +435,7 @@ mod tests {
         let root_key_bytes = hex_to_bytes(ROOT_KEY_HEX);
         let root_xprv = XPrv::from_slice_verified(&root_key_bytes).unwrap();
 
-        let xprv = key_gen(
-            root_xprv.clone(),
-            KeyContext::Address,
-            0,
-            0,
-            DerivationScheme::V2,
-        );
+        let xprv = key_gen(&root_xprv, KeyContext::Address, 0, 0, DerivationScheme::V2);
         let xpub = xprv.public();
 
         let prefix_encoded_tx = base64_decode("VFiJo2FtdM0D6KNmZWXNA+iiZnbOAkeSd6NnZW6sdGVzdG5ldC12MS4womhoxCBIY7UYpLPITsgQ8i1PEIHLD3HwWaesIN7GL39w5Qk6IqJsds4CR5Zfo3JjdsQgYv6DK3rRBUS+gzemcENeUGSuSmbne9eJCXZbRrV2pvOjc25kxCBi/oMretEFRL6DN6ZwQ15QZK5KZud714kJdltGtXam86R0eXBlo3BheQ==");
@@ -488,7 +483,7 @@ mod tests {
                 .derive(DerivationScheme::Peikert, i)
                 .unwrap();
             let my_key = key_gen(
-                root_xprv.clone(),
+                &root_xprv,
                 KeyContext::Address,
                 0,
                 i,
@@ -530,7 +525,7 @@ mod tests {
                 .derive(DerivationScheme::Peikert, i)
                 .unwrap();
             let my_key = key_gen(
-                root_xprv.clone(),
+                &root_xprv,
                 KeyContext::Address,
                 0,
                 i,
